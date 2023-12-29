@@ -1,5 +1,3 @@
-
-
 // Creating file format for csv files
 CREATE OR REPLACE file format csv_format
     type = csv 
@@ -12,8 +10,9 @@ create or replace storage integration s3_int
     TYPE = EXTERNAL_STAGE
     STORAGE_PROVIDER = S3
     ENABLED = TRUE 
-    STORAGE_AWS_ROLE_ARN = '*****************'
-    STORAGE_ALLOWED_LOCATIONS = ('s3://olist-ecommerce-data/sellers/',
+    STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::187770715104:role/aws_s3_snowflake'
+    STORAGE_ALLOWED_LOCATIONS = (
+    's3://olist-ecommerce-data/sellers/',
     's3://olist-ecommerce-data/products/',
     's3://olist-ecommerce-data/product_category/',
     's3://olist-ecommerce-data/orders/', 
@@ -121,24 +120,33 @@ from @OLIST.SOURCE.PRODUCT_STAGE
 FILE_FORMAT = csv_format
 pattern = '.*olist_products_dataset.*';
 
-select * from OLIST.RAW.RAW_ORDERS;
+-- setting up snowpipe for sellers
+CREATE OR REPLACE pipe sellers_pipe
+AUTO_INGEST = TRUE 
+AS
+copy into OLIST.RAW.SELLERS
+from @OLIST.SOURCE.SELLER_STAGE
+FILE_FORMAT = csv_format
+pattern = '.*olist_sellers_dataset.*';
 
-select SYSTEM$PIPE_STATUS('order_pipe');
+select * from OLIST.RAW.sellers limit 50;
 
-list @OLIST.SOURCE.ORDER_STAGE;
+select SYSTEM$PIPE_STATUS('sellers_pipe');
 
-truncate table OLIST.RAW.RAW_ORDERS;
+
+list @OLIST.SOURCE.SELLER_STAGE;
+
+truncate table OLIST.RAW.SELLERS;
 
 // Describing pipe to get ARN
-DESC pipe order_pipe;
+DESC pipe sellers_pipe;
 
 ///////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////
 
 
--- checking pipe status & history 
-select SYSTEM$PIPE_STATUS('product_pipe');
+
 
 
 list @OLIST.SOURCE.product_STAGE;
