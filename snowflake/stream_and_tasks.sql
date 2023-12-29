@@ -3,7 +3,7 @@ create stream product_stream on  table OLIST.RAW.RAW_PRODUCTS;
 --
 
 
--- configuring streams and tasks on raw table 
+-- configuring streams and tasks on raw  product table 
 -- these streams loads data from raw table into the source table for dbt consumption 
 merge into OLIST.SOURCE.SRC_PRODUCTS p 
 using OLIST.SOURCE.PRODUCT_STREAM s 
@@ -96,11 +96,75 @@ when not matched
     values(s.seller_id,s.seller_zip_code_prefix,s.seller_city,s.seller_state,current_date);
 
 
+-- creating geolocation  stream
+create stream geolocation_stream on  table OLIST.RAW.RAW_GEOLOCATION;
 
-select * from OLIST.SOURCE.SRC_sellers limit 50;
-truncate table OLIST.SOURCE.SRC_SELLERS;
+select * from OLIST.RAW.RAW_GEOLOCATION;
+--
+drop stream OLIST.SOURCE.geolocation_stream;
 
-select * from OLIST.SOURCE.sellers_STREAM;
+merge into OLIST.SOURCE.SRC_GEOLOCATION g
+using OLIST.SOURCE.geolocation_stream s 
+    on g.GEOLOCATION_ZIP_CODE_PREFIX = s.GEOLOCATION_ZIP_CODE_PREFIX 
+when matched 
+    and s.METADATA$ACTION = 'DELETE'
+    and s.METADATA$ISUPDATE = 'FALSE'
+then delete 
+when matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'TRUE'
+    then update 
+    set g.geolocation_zip_code_prefix  = s.geolocation_zip_code_prefix ,
+        g.geolocation_lat = s.geolocation_lat ,
+        g.geolocation_lng = s.geolocation_lng ,
+        g.geolocation_city = s.geolocation_city,
+        g.geolocation_state  = s.geolocation_state,
+        g.last_updated_date = current_date
+when not matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'FALSE'
+    then insert(geolocation_zip_code_prefix,geolocation_lat,geolocation_lng,geolocation_city,geolocation_state,last_updated_date)
+    values(s.geolocation_zip_code_prefix,s.geolocation_lat,s.geolocation_lng,s.geolocation_city,s.geolocation_state,current_date);
+
+
+-- creating order_item  stream
+create stream order_item_stream on  table OLIST.RAW.raw_order_item;
+
+
+select * from OLIST.RAW.RAW_GEOLOCATION;
+--
+drop stream OLIST.SOURCE.geolocation_stream;
+
+merge into OLIST.SOURCE.SRC_ORDER_ITEM ot
+using  OLIST.SOURCE.ORDER_ITEM_STREAM s 
+    on ot.order_id = s.order_id 
+when matched 
+    and s.METADATA$ACTION = 'DELETE'
+    and s.METADATA$ISUPDATE = 'FALSE'
+then delete 
+when matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'TRUE'
+    then update 
+    set ot.order_id  = s.order_id ,
+        ot.order_item = s.order_item ,
+        ot.product_id = s.product_id ,
+        ot.seller_id = s.seller_id,
+        ot.shipping_limit_date  = s.shipping_limit_date,
+        ot.price = s.price,
+        ot.freight_value = s.freight_value,
+        ot.last_updated_date = current_date
+when not matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'FALSE'
+    then insert(order_id,order_item,product_id,seller_id,shipping_limit_date,price,freight_value,last_updated_date)
+    values(s.order_id,s.order_item,s.product_id,s.seller_id,s.shipping_limit_date,s.price,s.freight_value,current_date);
+
+    
+select * from OLIST.SOURCE.SRC_ORDER_ITEM limit 50;
+truncate table OLIST.SOURCE.SRC_ORDER_ITEM;
+
+select * from OLIST.SOURCE.order_item_stream;
 
 
 

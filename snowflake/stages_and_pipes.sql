@@ -1,7 +1,15 @@
-// Creating file format for csv files
+t// Creating file format for csv files
 CREATE OR REPLACE file format csv_format
     type = csv 
     field_delimiter = ','
+    skip_header = 1
+    empty_field_as_null = TRUE
+    ERROR_ON_COLUMN_COUNT_MISMATCH=FALSE;
+
+// Creating file format for csv files
+CREATE OR REPLACE file format pipe_csv_format
+    type = csv 
+    field_delimiter = '|'
     skip_header = 1
     empty_field_as_null = TRUE;
 
@@ -39,20 +47,21 @@ CREATE OR REPLACE STAGE customers_stage
     FILE_FORMAT = csv_format;
 
 --geolocation stage 
-CREATE OR REPLACE STAGE customers_stage
+CREATE OR REPLACE STAGE geolocation_stage
     URL = 's3://olist-ecommerce-data/geolocation/'
     STORAGE_INTEGRATION = s3_int
     FILE_FORMAT = csv_format;
 
     
 --geolocation stage 
-CREATE OR REPLACE STAGE customers_stage
+CREATE OR REPLACE STAGE geolocation_stage
     URL = 's3://olist-ecommerce-data/geolocation/'
-    STORAGE_INTEGRATION = s3_int
-    FILE_FORMAT = csv_format;
+    STORAGE_INTEGRATION = s3_int;
+
+
 
 --order item stage 
-CREATE OR REPLACE STAGE order_item_stage
+CREATE OR REPLACE STAGE order_items_stage
     URL = 's3://olist-ecommerce-data/order_items/'
     STORAGE_INTEGRATION = s3_int
     FILE_FORMAT = csv_format;
@@ -121,6 +130,7 @@ FILE_FORMAT = csv_format
 pattern = '.*olist_products_dataset.*';
 
 -- setting up snowpipe for sellers
+--
 CREATE OR REPLACE pipe sellers_pipe
 AUTO_INGEST = TRUE 
 AS
@@ -129,14 +139,50 @@ from @OLIST.SOURCE.SELLER_STAGE
 FILE_FORMAT = csv_format
 pattern = '.*olist_sellers_dataset.*';
 
-select * from OLIST.RAW.sellers limit 50;
+-- setting up snowpipe for payments
+CREATE OR REPLACE pipe order_payment_pipe
+AUTO_INGEST = TRUE 
+AS
+copy into OLIST.RAW.ORDER_PAYMENT
+from @OLIST.SOURCE.ORDER_PAYMENT_STAGE
+FILE_FORMAT = csv_format
+on_error = continue
+pattern = '.*olist_order_payment_dataset.*';
 
-select SYSTEM$PIPE_STATUS('sellers_pipe');
+
+-- setting up snowpipe for order_item
+CREATE OR REPLACE pipe order_item_pipe
+AUTO_INGEST = TRUE 
+AS
+copy into OLIST.RAW.RAW_ORDER_ITEM
+from @OLIST.SOURCE.order_items_stage
+FILE_FORMAT = csv_format
+pattern = '.*olist_order_items_dataset.*';
 
 
-list @OLIST.SOURCE.SELLER_STAGE;
+select * from OLIST.RAW.raw_order_item limit 50;
 
-truncate table OLIST.RAW.SELLERS;
+select SYSTEM$PIPE_STATUS('order_item_pipe');
+
+
+list @OLIST.SOURCE.order_items_stage;
+
+truncate table OLIST.RAW.raw_order_item;
+
+
+
+-- setting up snowpipe for geolocation
+CREATE OR REPLACE pipe geolocation_pipe
+AUTO_INGEST = TRUE 
+AS
+copy into OLIST.RAW.RAW_GEOLOCATION
+from @OLIST.SOURCE.geolocation_stage
+FILE_FORMAT = csv_format
+on_error = continue
+pattern = '.*olist_geolocation_dataset.*';
+
+
+
 
 // Describing pipe to get ARN
 DESC pipe sellers_pipe;
