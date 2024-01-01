@@ -192,18 +192,37 @@ when matched
         cs.last_updated_date = current_date
 when not matched 
     and s.METADATA$ACTION = 'INSERT'
+
     and s.METADATA$ISUPDATE = 'FALSE'
     then insert(customer_id,customer_unique_id,customer_zip_code_prefix,customer_city,customer_state,last_updated_date) values(s.customer_id,s.customer_unique_id,s.customer_zip_code_prefix,s.customer_city,s.customer_state,current_date);
 
+
+
+
+-- creating order_item  stream
+create stream product_cat_stream on  table OLIST.RAW.PRODUCT_CATEGORY;
+
+
+--
+drop stream OLIST.RAW.raw_order_item;
+
+merge into OLIST.SOURCE.PRODUCT_CATEGORY pc 
+using   OLIST.SOURCE.PRODUCT_CAT_STREAM s
+    on pc.product_category_name = s.product_category_name 
+when matched 
+    and s.METADATA$ACTION = 'DELETE'
+    and s.METADATA$ISUPDATE = 'FALSE'
+then delete 
+when matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'TRUE'
+    then update 
+    set pc.product_category_name  = s.product_category_name ,
+        pc.product_category_name_english = s.product_category_name_english,
+        pc.last_updated_date = current_date
+when not matched 
+    and s.METADATA$ACTION = 'INSERT'
+
+    and s.METADATA$ISUPDATE = 'FALSE'
+    then insert(product_category_name,product_category_name_english,last_updated_date) values(s.product_category_name,s.product_category_name_english,current_date);
     
-select * from OLIST.SOURCE.CUSTOMERS_STREAM limit 50;
-
-truncate table OLIST.SOURCE.SRC_ORDER_ITEM;
-
-select * from OLIST.SOURCE.SRC_CUSTOMERS;
-
-
-
-
-
-drop stream product_stream;

@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: olist
+    schema: source 
+    tables:
+      - name: product_category
+        identifier: product_category
+
+      - name: src_customers
+        identifier: customers
+

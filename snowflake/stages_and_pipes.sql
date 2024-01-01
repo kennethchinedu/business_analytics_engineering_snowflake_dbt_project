@@ -160,8 +160,6 @@ FILE_FORMAT = csv_format
 pattern = '.*olist_order_items_dataset.*';
 
 
-
-
 -- setting up snowpipe for customers pipe
 CREATE OR REPLACE pipe customers_pipe
 AUTO_INGEST = TRUE 
@@ -171,17 +169,26 @@ from @OLIST.SOURCE.customers_stage
 FILE_FORMAT = csv_format
 pattern = '.*olist_customers_dataset.*';
 
+--won't load this for now
+-- Setting up snow pipe for product category pipe
+CREATE OR REPLACE pipe product_cat_pipe
+AUTO_INGEST = TRUE 
+AS
+copy into OLIST.RAW.PRODUCT_CATEGORY
+from @OLIST.SOURCE.product_category_stage
+FILE_FORMAT = csv_format
+pattern = '.*product_category_name_translation.*';
 
 
 
-select * from OLIST.RAW.RAW_CUSTOMERS limit 50;
+select * from OLIST.RAW.PRODUCT_CATEGORY limit 50;
 
-select SYSTEM$PIPE_STATUS('customers_pipe');
+select SYSTEM$PIPE_STATUS('product_cat_pipe');
 
 
-list @OLIST.SOURCE.customers_stage;
+list @OLIST.SOURCE.product_category_stage;
 
-truncate table OLIST.RAW.RAW_CUSTOMERS;
+truncate table OLIST.RAW.PRODUCT_CATEGORY;
 
 
 
