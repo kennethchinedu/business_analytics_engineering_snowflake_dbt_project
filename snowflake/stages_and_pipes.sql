@@ -160,14 +160,28 @@ FILE_FORMAT = csv_format
 pattern = '.*olist_order_items_dataset.*';
 
 
-select * from OLIST.RAW.raw_order_item limit 50;
-
-select SYSTEM$PIPE_STATUS('order_item_pipe');
 
 
-list @OLIST.SOURCE.order_items_stage;
+-- setting up snowpipe for customers pipe
+CREATE OR REPLACE pipe customers_pipe
+AUTO_INGEST = TRUE 
+AS
+copy into OLIST.RAW.RAW_CUSTOMERS
+from @OLIST.SOURCE.customers_stage
+FILE_FORMAT = csv_format
+pattern = '.*olist_customers_dataset.*';
 
-truncate table OLIST.RAW.raw_order_item;
+
+
+
+select * from OLIST.RAW.RAW_CUSTOMERS limit 50;
+
+select SYSTEM$PIPE_STATUS('customers_pipe');
+
+
+list @OLIST.SOURCE.customers_stage;
+
+truncate table OLIST.RAW.RAW_CUSTOMERS;
 
 
 

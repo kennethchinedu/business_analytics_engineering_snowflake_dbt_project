@@ -160,11 +160,47 @@ when not matched
     then insert(order_id,order_item,product_id,seller_id,shipping_limit_date,price,freight_value,last_updated_date)
     values(s.order_id,s.order_item,s.product_id,s.seller_id,s.shipping_limit_date,s.price,s.freight_value,current_date);
 
+-- creating customers stream
+create stream customers_stream on  table OLIST.RAW.RAW_CUSTOMERS;
+
+
+
+
+-- creating order_item  stream
+create stream order_item_stream on  table OLIST.RAW.raw_order_item;
+
+
+--
+drop stream OLIST.RAW.raw_order_item;
+
+merge into OLIST.SOURCE.SRC_CUSTOMERS cs
+using   OLIST.SOURCE.CUSTOMERS_STREAM s
+    on cs.customer_id = s.customer_id 
+when matched 
+    and s.METADATA$ACTION = 'DELETE'
+    and s.METADATA$ISUPDATE = 'FALSE'
+then delete 
+when matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'TRUE'
+    then update 
+    set cs.customer_id  = s.customer_id ,
+        cs.customer_unique_id = s.customer_unique_id,
+        cs.customer_zip_code_prefix = s.customer_zip_code_prefix ,
+        cs.customer_city = s.customer_city,
+        cs.customer_state  = s.customer_state,
+        cs.last_updated_date = current_date
+when not matched 
+    and s.METADATA$ACTION = 'INSERT'
+    and s.METADATA$ISUPDATE = 'FALSE'
+    then insert(customer_id,customer_unique_id,customer_zip_code_prefix,customer_city,customer_state,last_updated_date) values(s.customer_id,s.customer_unique_id,s.customer_zip_code_prefix,s.customer_city,s.customer_state,current_date);
+
     
-select * from OLIST.SOURCE.SRC_ORDER_ITEM limit 50;
+select * from OLIST.SOURCE.CUSTOMERS_STREAM limit 50;
+
 truncate table OLIST.SOURCE.SRC_ORDER_ITEM;
 
-select * from OLIST.SOURCE.order_item_stream;
+select * from OLIST.SOURCE.SRC_CUSTOMERS;
 
 
 
