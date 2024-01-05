@@ -8,5 +8,22 @@ sources:
         identifier: product_category
 
       - name: src_customers
-        identifier: customers
+        identifier: src_customers
+      - name: src_orders
+        identifier: src_orders
+      - name: src_order_item
+        identifier: src_order_item 
+      - name: src_products
+        identifier: src_products
+      - name: src_order_payment
+        identifier: src_order_payment
+      - name: src_sellers
+        identifier: src_sellers
+      - name: src_geolocation 
+        identifier: src_geolocation 
+      - name: src_order_review
+        identifier: src_order_review 
+
+        
+
 
