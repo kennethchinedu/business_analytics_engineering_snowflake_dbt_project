@@ -18,9 +18,13 @@ oi AS (
 
 SELECT 
     ot.order_id,
+    o.customer_id
     ot.payment_sequential,
     ot.payment_type,
     ot.payment_installments,
-    ot.payment_value
+    ot.payment_value,
+    
+    
 
-
+FROM 
+    ot
