@@ -12,18 +12,18 @@ WITH
     customer_id, 
     order_status, 
     -- Extract order purchase timestamp data
-    TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI') AS order_purchase_date,
+    order_purchase_timestamp,
     CASE 
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'SUN' THEN 'Sunday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'MON' THEN 'Monday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'TUE' THEN 'Tuesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'WED' THEN 'Wednesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'THUR' THEN 'Thursday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'FRI' THEN 'Friday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'))) = 'SAT' THEN 'Saturday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'SUN' THEN 'Sunday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'MON' THEN 'Monday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'TUE' THEN 'Tuesday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'WED' THEN 'Wednesday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'THUR' THEN 'Thursday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'FRI' THEN 'Friday'
+        WHEN UPPER(DAYNAME(order_purchase_timestamp)) = 'SAT' THEN 'Saturday'
         ELSE 'Unknown'
     END AS order_purchase_day,
-    CASE EXTRACT(MONTH FROM TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH:MI'))
+    CASE EXTRACT(MONTH FROM order_purchase_timestamp)
         WHEN 1 THEN 'January'
         WHEN 2 THEN 'February'
         WHEN 3 THEN 'March'
@@ -38,52 +38,51 @@ WITH
         WHEN 12 THEN 'December'
         ELSE 'Invalid Month'
     END AS  order_purchase_month,
-    EXTRACT(DAY FROM TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI')) AS order_purchase_days,
-    
-    EXTRACT(YEAR FROM TO_DATE(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI')) AS order_purchase_year,
-    TO_CHAR(TO_TIME(order_purchase_timestamp, 'MM/DD/YYYY HH24:MI'), 'HH24:MI') AS order_purchase_time, 
+    EXTRACT(DAY FROM order_purchase_timestamp) AS order_purchase_days,
+    TO_CHAR(order_purchase_timestamp, 'YYYY') AS order_purchase_year,
+    TO_CHAR(order_purchase_timestamp, 'HH24:MI') AS order_purchase_time, 
 
     -- Extract order approved timestamp data
-    TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI') AS order_aproved_date,
+    order_approved_at,
     CASE 
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'SUN' THEN 'Sunday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'MON' THEN 'Monday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'TUE' THEN 'Tuesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'WED' THEN 'Wednesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'THUR' THEN 'Thursday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'FRI' THEN 'Friday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_approved_at, 'MM/DD/YYYY HH24:MI'))) = 'SAT' THEN 'Saturday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'SUN' THEN 'Sunday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'MON' THEN 'Monday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'TUE' THEN 'Tuesday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'WED' THEN 'Wednesday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'THUR' THEN 'Thursday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'FRI' THEN 'Friday'
+        WHEN UPPER(DAYNAME(order_approved_at)) = 'SAT' THEN 'Saturday'
         ELSE 'Unknown'
     END AS order_approved_day,
-    TO_CHAR(TO_TIME(order_approved_at, 'MM/DD/YYYY HH24:MI'), 'HH24:MI') AS order_approved_time,
+    TO_CHAR(order_approved_at,'HH24:MI') AS order_approved_time,
 
     -- order estimated delivery data
-    TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI') AS order_estimated_delivery_date,
+    order_estimated_delivery_date,
     CASE 
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'SUN' THEN 'Sunday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'MON' THEN 'Monday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'TUE' THEN 'Tuesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'WED' THEN 'Wednesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'THUR' THEN 'Thursday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'FRI' THEN 'Friday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'))) = 'SAT' THEN 'Saturday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'SUN' THEN 'Sunday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'MON' THEN 'Monday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'TUE' THEN 'Tuesday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'WED' THEN 'Wednesday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'THUR' THEN 'Thursday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'FRI' THEN 'Friday'
+        WHEN UPPER(DAYNAME(order_estimated_delivery_date)) = 'SAT' THEN 'Saturday'
         ELSE 'Unknown'
     END AS order_estimated_delivery_day,
-    TO_CHAR(TO_TIME(order_estimated_delivery_date, 'MM/DD/YYYY HH24:MI'), 'HH24:MI') AS order_estimated_delivery_time,
+    TO_CHAR(order_estimated_delivery_date, 'HH24:MI') AS order_estimated_delivery_time,
 
     --order delivered to customers data
-    TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI') AS order_delivered_customer_date,
+    order_delivered_customer_date,
     CASE 
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'SUN' THEN 'Sunday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'MON' THEN 'Monday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'TUE' THEN 'Tuesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'WED' THEN 'Wednesday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'THUR' THEN 'Thursday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'FRI' THEN 'Friday'
-        WHEN UPPER(DAYNAME(TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'))) = 'SAT' THEN 'Saturday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'SUN' THEN 'Sunday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'MON' THEN 'Monday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'TUE' THEN 'Tuesday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'WED' THEN 'Wednesday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'THUR' THEN 'Thursday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'FRI' THEN 'Friday'
+        WHEN UPPER(DAYNAME(order_delivered_customer_date)) = 'SAT' THEN 'Saturday'
         ELSE 'Unknown'
     END AS order_delivered_to_customer_day,
-    CASE EXTRACT(MONTH FROM TO_DATE(order_delivered_customer_date, 'MM/DD/YYYY HH:MI'))
+    CASE EXTRACT(MONTH FROM order_delivered_customer_date)
         WHEN 1 THEN 'January'
         WHEN 2 THEN 'February'
         WHEN 3 THEN 'March'
@@ -98,8 +97,9 @@ WITH
         WHEN 12 THEN 'December'
         ELSE 'Invalid Month'
     END AS  order_delivered_to_customer_month,
-    TO_CHAR(TO_TIME(order_delivered_customer_date, 'MM/DD/YYYY HH24:MI'), 'HH24:MI') AS order_delivered_to_customer_time 
+    TO_CHAR(order_delivered_customer_date, 'HH24:MI') AS order_delivered_to_customer_time 
 FROM 
     stg_orders
 
+ 
 
